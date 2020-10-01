@@ -2,6 +2,9 @@ from graphics import *
 import utils
 import time
 import math
+import random
+
+DEBUG = False
 
 #--Useful Comment Formats--#
 
@@ -102,10 +105,11 @@ class massBody:
                 distance = utils.distanceCalc(self.pos,entity.pos)
                 force = utils.gravityCalc(self.mass,entity.mass,distance)
                 if force > greatestForce[0]:
-                    if greatestForce[1] != None:
-                        print(entity.name + "'s force on this body is: " + str(force) + " Which is greater than " + greatestForce[1].name + "'s force of: " + str(greatestForce[0]))
-                    else:
-                        print("There is no greatest force yet.")
+                    if DEBUG:
+                        if greatestForce[1] != None:
+                            print(entity.name + "'s force on this body is: " + str(force) + " Which is greater than " + greatestForce[1].name + "'s force of: " + str(greatestForce[0]))
+                        else:
+                            print("There is no greatest force yet.")
                     greatestForce[0] = force
                     greatestForce[1] = entity
 
@@ -137,15 +141,20 @@ class massBody:
     #Description: A series of functions that occur every tick of the simulation.
 
     def simTick(self, simulation):
-        print(self.name)
+        if DEBUG:
+            print(self.name)
         forces = self.calcForces(simulation.simulationEntities)
-        print("Force vector: " + str(forces))
+        if DEBUG:
+            print("Force vector: " + str(forces))
         acceleration = self.calcAccel(forces)
-        print("Acceleration vector: " + str(acceleration))
+        if DEBUG:
+            print("Acceleration vector: " + str(acceleration))
         self.updateVel(acceleration)
-        print("Velocity vector: " + str(self.vel))
+        if DEBUG:
+            print("Velocity vector: " + str(self.vel))
         self.updatePos()
-        print("Position: " + str(self.pos))
+        if DEBUG:
+            print("Position: " + str(self.pos))
         simulation.window.moveBody(self)
 #        self.calculateCollision()  -- Possible addition?
 
@@ -245,29 +254,48 @@ class simulation:
     #Returns: Nothing
     #Description: Creates a large collection of massBody objects, scatters them over an area, assigns a range of properties and gives initial orbital paths.
 
-    def scatterBodies(self, numBodies, scatterType, range, rangeCenter, systemCenter, massRange, sizeRange, colorRange, orbitType):
-        for i in range(numBodies):
-            temp = 0
+    def scatterBodies(self, numBodies, scatterType, spreadRange, rangeCenter, systemCenter, massRange, sizeRange, colorRange, orbitType, nameBase):
+
+        if scatterType == "orbit":
+            randomRange = list()
+            for i in range(numBodies * random.randint(1,3)):
+                randomRange.append(i)
+
+            randomSample = random.sample(randomRange,numBodies)
+            for i in range(numBodies):
+                angle = randomSample[i] * ((2 * math.pi) / numBodies)
+                distance = random.randint(spreadRange[0],spreadRange[1])
+                newPoint = utils.getPointFromAngle(distance, angle, systemCenter)
+                self.addBody((nameBase + str(i)), random.randint(massRange[0], massRange[1]), newPoint, orbitType, random.randint(sizeRange[0], sizeRange[1]), random.choice(colorRange))
+
+            #temp = 0
 
 def main():
 
     simulating = True
-    tickDelay = 0.001
+    tickDelay = 0.0001
+    #numBodies = 20
+    #test = range(numBodies * random.randint(1,3))
+    #for n in test:
+    #    print(n)
 
     sim = simulation()
 
     sim.window.launchWindow()
 
-    sim.addBody("Star", 1000000000000, [500,500], "none", 30, "yellow")
-    sim.addBody("Planet", 7000000000, [500,900], "circular", 10, "blue")
-    sim.addBody("Moon1", 150000, [500,925], "circular", 4, "white")
-    sim.addBody("Moon2", 100000, [500,935], "circular", 3, "green")
+    sim.addBody("Star", (1000000000000), [500,500], "none", 20, "yellow")
+    sim.addBody("Planet", 7000000000, utils.getPointFromAngle(400,45,[500,500]), "circular", 7, "brown")
+    #sim.addBody("Moon1", 150000, [500,925], "circular", 4, "white")
+    #sim.addBody("Moon2", 100000, [500,935], "circular", 3, "green")
     #sim.addBody("Moon2", 9000, [500,941], [0.45,0], 1, "red")
+
+    #sim.scatterBodies(100, "orbit", [399,401], 400, [500,500], [100,500], [1,2], ["grey", "brown", "white", "red"], "circular", "Asteroid")
 
     time.sleep(10)
 
     while simulating:
-        print("-------------------------------------------------------")
+        if DEBUG:
+            print("-------------------------------------------------------")
         sim.simTick()
         time.sleep(tickDelay)
 

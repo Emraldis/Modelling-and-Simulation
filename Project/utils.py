@@ -1,6 +1,8 @@
 import numpy
 import math
 
+DEBUG = False
+
     #distanceCalc Function
     #Inputs: Two positions in space
     #Returns: A scalar distance value
@@ -19,8 +21,11 @@ def distanceCalc(pos1, pos2):
 
 def gravityCalc(mass1, mass2, distance):
     G = 6.67 * math.pow(10,-11)
+    if distance == 0:
+        distance = 1
     F = (G * mass1 * mass2) / (distance * distance)
-    print("Force, as calculated: " + str(F))
+    if DEBUG:
+        print("Force, as calculated: " + str(F))
     return(F)
 
     #dirVectCalc Function
@@ -35,7 +40,8 @@ def dirVectCalc(pos1, pos2):
 
     dirVector = [dx/magnitude,dy/magnitude]
 
-    print("Calculated Directional Vector: " + str(dirVector))
+    if DEBUG:
+        print("Calculated Directional Vector: " + str(dirVector))
 
     return(dirVector)
 
@@ -48,3 +54,8 @@ def vectorBreakdown(magnitude, dirVector):
     dx = magnitude * dirVector[0]
     dy = magnitude * dirVector[1]
     return([dx,dy])
+
+def getPointFromAngle(distance,angle,centerpoint):
+    dx = math.cos(angle) * distance
+    dy = math.sin(angle) * distance
+    return([centerpoint[0] + dx, centerpoint[1] + dy])
