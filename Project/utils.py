@@ -1,10 +1,10 @@
 import numpy
 import math
 
-    # Function
-    #Inputs:
-    #Returns:
-    #Description:
+    #distanceCalc Function
+    #Inputs: Two positions in space
+    #Returns: A scalar distance value
+    #Description: Calculates the distance between two points.
 
 def distanceCalc(pos1, pos2):
     dx = pos2[0] - pos1[0]
@@ -12,10 +12,10 @@ def distanceCalc(pos1, pos2):
     distance = math.sqrt(pow(dx, 2) + pow(dy, 2))
     return(distance)
 
-    # Function
-    #Inputs:
-    #Returns:
-    #Description:
+    #gravityCalc Function
+    #Inputs: Two masses and the distance between them
+    #Returns: A scalar force value
+    #Description: Calculates the gravitational force felt by the first object due to the second.
 
 def gravityCalc(mass1, mass2, distance):
     G = 6.67 * math.pow(10,-11)
@@ -23,10 +23,10 @@ def gravityCalc(mass1, mass2, distance):
     print("Force, as calculated: " + str(F))
     return(F)
 
-    # Function
-    #Inputs:
-    #Returns:
-    #Description:
+    #dirVectCalc Function
+    #Inputs: two positions in space
+    #Returns: A unit vector
+    #Description: Calculates the directional unit vector from position 1 to position 2
 
 def dirVectCalc(pos1, pos2):
     dx = pos2[0] - pos1[0]
@@ -39,10 +39,10 @@ def dirVectCalc(pos1, pos2):
 
     return(dirVector)
 
-    # Function
-    #Inputs:
-    #Returns:
-    #Description:
+    #vectorBreakdown Function
+    #Inputs: A magnitude and a directional unit vector
+    #Returns: A vector
+    #Description: Calculates a new vector given a magnitude and direction
 
 def vectorBreakdown(magnitude, dirVector):
     dx = magnitude * dirVector[0]
