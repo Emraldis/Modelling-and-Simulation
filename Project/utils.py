@@ -38,6 +38,9 @@ def dirVectCalc(pos1, pos2):
     dy = pos2[1] - pos1[1]
     magnitude = math.sqrt(pow(dx, 2) + pow(dy, 2))
 
+    if magnitude == 0:
+        magnitude = 1
+
     dirVector = [dx/magnitude,dy/magnitude]
 
     if DEBUG:
@@ -59,3 +62,6 @@ def getPointFromAngle(distance,angle,centerpoint):
     dx = math.cos(angle) * distance
     dy = math.sin(angle) * distance
     return([centerpoint[0] + dx, centerpoint[1] + dy])
+
+def getPointFromVector(centerpoint, vector):
+    return([centerpoint[0] + vector[0],centerpoint[1] + vector[1]])

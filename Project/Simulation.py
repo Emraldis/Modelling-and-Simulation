@@ -127,7 +127,7 @@ class massBody:
         G = 6.67 * math.pow(10,-11)
         distance = utils.distanceCalc(self.pos,orbitBody.pos)
         forceDirVector = utils.dirVectCalc(self.pos,orbitBody.pos)
-        velDirVector = [forceDirVector[1], forceDirVector[0]]
+        velDirVector = [forceDirVector[1], forceDirVector[0] * -1]
 
         if orbitType == "circular":
             velMagnitude = math.sqrt((G * orbitBody.mass)/distance)
@@ -141,21 +141,23 @@ class massBody:
     #Description: A series of functions that occur every tick of the simulation.
 
     def simTick(self, simulation):
-        if DEBUG:
-            print(self.name)
-        forces = self.calcForces(simulation.simulationEntities)
-        if DEBUG:
-            print("Force vector: " + str(forces))
-        acceleration = self.calcAccel(forces)
-        if DEBUG:
-            print("Acceleration vector: " + str(acceleration))
-        self.updateVel(acceleration)
-        if DEBUG:
-            print("Velocity vector: " + str(self.vel))
-        self.updatePos()
-        if DEBUG:
-            print("Position: " + str(self.pos))
-        simulation.window.moveBody(self)
+        if self.name != "Star":
+            if DEBUG:
+                print(self.name)
+            forces = self.calcForces(simulation.simulationEntities)
+            if DEBUG:
+                print("Force vector: " + str(forces))
+            acceleration = self.calcAccel(forces)
+            if DEBUG:
+                print("Acceleration vector: " + str(acceleration))
+            self.updateVel(acceleration)
+            if DEBUG:
+                print("Velocity vector: " + str(self.vel))
+            self.updatePos()
+
+            if DEBUG:
+                print("Position: " + str(self.pos))
+            #simulation.window.moveBody(self)
 #        self.calculateCollision()  -- Possible addition?
 
 #-----------------------------
@@ -208,8 +210,10 @@ class simWindow:
 
 class simulation:
     def __init__(self):
+        self.tick = 0
         self.window = simWindow(1000,1000,"black")
         self.simulationEntities = list()
+        self.vectorEntities = list()
 
     #addBody Function
     #Inputs: A Name, mass, starting position, starting velocity, size and color of a massBody object
@@ -246,8 +250,15 @@ class simulation:
     #Description: A series of commands to run at every tick of the simulation.
 
     def simTick(self):
+        self.tick = self.tick + 1
         for entity in self.simulationEntities:
             entity.simTick(self)
+            if self.tick % 1000 == 0:
+                entity.icon.undraw()
+                entity.icon = Circle(Point(entity.pos[0],entity.pos[1]), entity.size)
+                entity.icon.setFill(entity.color)
+                entity.icon.setOutline(entity.color)
+                entity.icon.draw(self.window.window)
 
     #scatterBodies Function
     #Inputs: A number of bodies to scatter, a style of scattering (), a range within which to scatter the bodies, a center of the range required for certain scattering types, a center of the system around which to scatter the bodies, a range of mass, size and color values to assign the scattered bodies, and an orbit type to calculate for each of the scattered bodies.
@@ -268,7 +279,20 @@ class simulation:
                 newPoint = utils.getPointFromAngle(distance, angle, systemCenter)
                 self.addBody((nameBase + str(i)), random.randint(massRange[0], massRange[1]), newPoint, orbitType, random.randint(sizeRange[0], sizeRange[1]), random.choice(colorRange))
 
-            #temp = 0
+    def drawVectorArrows(self):
+        for entity in self.simulationEntities:
+            p1 = Point(entity.pos[0], entity.pos[1])
+            point2 = utils.getPointFromVector(entity.pos, entity.vel)
+            p2 = Point(point2[0],point2[1])
+            newLine = Line(p1,p2)
+            newLine.setArrow("last")
+            newLine.setFill("white")
+            newLine.draw(self.window.window)
+            self.vectorEntities.append(newLine)
+
+    def eraseVectorArrows(self):
+        for arrow in self.vectorEntities:
+            arrow.undraw()
 
 def main():
 
@@ -284,20 +308,24 @@ def main():
     sim.window.launchWindow()
 
     sim.addBody("Star", (1000000000000), [500,500], "none", 20, "yellow")
-    sim.addBody("Planet", 7000000000, utils.getPointFromAngle(400,45,[500,500]), "circular", 7, "brown")
+    sim.addBody("Planet", 7000000000, utils.getPointFromAngle(400,math.radians(315),[500,500]), "circular", 7, "brown")
     #sim.addBody("Moon1", 150000, [500,925], "circular", 4, "white")
     #sim.addBody("Moon2", 100000, [500,935], "circular", 3, "green")
     #sim.addBody("Moon2", 9000, [500,941], [0.45,0], 1, "red")
 
-    #sim.scatterBodies(100, "orbit", [399,401], 400, [500,500], [100,500], [1,2], ["grey", "brown", "white", "red"], "circular", "Asteroid")
+    sim.scatterBodies(50, "orbit", [320,480], 400, [500,500], [100,500], [1,2], ["grey", "brown", "white", "red"], "circular", "Asteroid")
 
-    time.sleep(10)
+    #sim.drawVectorArrows()
+
+    #time.sleep(10)
+
+    #sim.eraseVectorArrows()
 
     while simulating:
         if DEBUG:
             print("-------------------------------------------------------")
         sim.simTick()
-        time.sleep(tickDelay)
+        #time.sleep(tickDelay)
 
 
     sim.window.window.getMouse()
