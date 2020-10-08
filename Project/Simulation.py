@@ -253,12 +253,15 @@ class simulation:
         self.tick = self.tick + 1
         for entity in self.simulationEntities:
             entity.simTick(self)
-            if self.tick % 1000 == 0:
+            if ((self.tick % 10 == 0) and (self.tick <= 100000)) or ((self.tick >= 100000) and (self.tick <= 10000000000) and (self.tick % 10000 == 0)) or (self.tick >= 10000000000) :
                 entity.icon.undraw()
                 entity.icon = Circle(Point(entity.pos[0],entity.pos[1]), entity.size)
                 entity.icon.setFill(entity.color)
                 entity.icon.setOutline(entity.color)
                 entity.icon.draw(self.window.window)
+
+        if self.tick % 1000 == 0:
+            print(str(self.tick) + " Simulation Ticks have Ocurred")
 
     #scatterBodies Function
     #Inputs: A number of bodies to scatter, a style of scattering (), a range within which to scatter the bodies, a center of the range required for certain scattering types, a center of the system around which to scatter the bodies, a range of mass, size and color values to assign the scattered bodies, and an orbit type to calculate for each of the scattered bodies.
@@ -308,7 +311,7 @@ def main():
     sim.window.launchWindow()
 
     sim.addBody("Star", (1000000000000), [500,500], "none", 20, "yellow")
-    sim.addBody("Planet", 7000000000, utils.getPointFromAngle(400,math.radians(315),[500,500]), "circular", 7, "brown")
+    sim.addBody("Planet", 7000000000, utils.getPointFromAngle(400,math.radians(315),[500,500]), "circular", 7, "green")
     #sim.addBody("Moon1", 150000, [500,925], "circular", 4, "white")
     #sim.addBody("Moon2", 100000, [500,935], "circular", 3, "green")
     #sim.addBody("Moon2", 9000, [500,941], [0.45,0], 1, "red")
